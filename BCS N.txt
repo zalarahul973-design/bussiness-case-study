@@ -1,0 +1,69 @@
+1)
+
+SELECT 
+    strftime('%m', Date) AS MonthNo,
+    strftime('%Y-%m', Date) AS Month,
+    SUM(TotalAmount) AS TotalSales
+FROM RegionalSales2025
+GROUP BY MonthNo, Month
+ORDER BY MonthNo;
+
+2)
+SELECT 
+    Region,
+    ROUND(
+        100.0 * SUM(CASE 
+            WHEN OrderStatus IN ('Cancelled','Returned') THEN 1 
+            ELSE 0 END) / COUNT(*), 2
+    ) AS Loss_Percentage
+FROM RegionalSales2025
+GROUP BY Region;
+
+3)
+SELECT 
+    Region,
+    ProductName,
+    SUM(TotalAmount) AS RevenueLoss
+FROM RegionalSales2025
+WHERE OrderStatus IN ('Cancelled','Returned')
+GROUP BY Region, ProductName
+ORDER BY RevenueLoss DESC
+LIMIT 3;
+
+4)
+SELECT 
+    Category,
+    AVG(TotalAmount) AS AvgOrderValue
+FROM RegionalSales2025
+GROUP BY Category;
+
+5)
+SELECT 
+    SalesAgent,
+    SUM(TotalAmount) AS TotalRevenue
+FROM RegionalSales2025
+WHERE OrderStatus = 'Completed'
+GROUP BY SalesAgent
+ORDER BY TotalRevenue DESC
+LIMIT 5;
+
+6)
+SELECT 
+    Category,
+    SUM(TotalAmount) AS TotalSales,
+    ROUND(
+        100.0 * SUM(TotalAmount) / 
+        (SELECT SUM(TotalAmount) FROM RegionalSales2025), 2
+    ) AS Contribution_Percentage
+FROM RegionalSales2025
+GROUP BY Category;
+
+7)
+SELECT 
+    CustomerID,
+    COUNT(*) AS ReturnCount
+FROM RegionalSales2025
+WHERE OrderStatus = 'Returned'
+GROUP BY CustomerID
+HAVING COUNT(*) >= 3
+ORDER BY ReturnCount DESC;
